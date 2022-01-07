@@ -20,4 +20,4 @@ function createAnalytics() {
   }
 }
 
-window.analytics = createAnalytics();
+window['analytics'] = createAnalytics();

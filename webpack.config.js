@@ -47,12 +47,39 @@ const cssLoaders = () => {
   return loaders
 }
 
+const babelOptions = (preset) => {
+  const opts = {
+    presets: [
+      '@babel/preset-env'
+    ],
+    plugins: [
+      '@babel/plugin-proposal-class-properties']
+  }
+  if (preset) {
+    opts.presets.push(preset)
+  }
+  return opts
+};
+
+const jsLoaders = () => {
+  const loaders = [{
+    loader: 'babel-loader',
+    options: babelOptions()
+  }];
+  
+  if (isDev) {
+    loaders.push('eslint-loader')
+  }
+
+  return loaders;
+};
+
 module.exports = {
   context: path.resolve(__dirname, 'src'),
   mode: 'development',
   entry: {
-    main: ['@babel/polyfill', './index.js'],
-    analystics: './analytics.js'
+    main: ['@babel/polyfill', './index.jsx'],
+    analystics: './analytics.ts'
   },
   output: {
     filename: filename('js'),
@@ -91,25 +118,33 @@ module.exports = {
       },
       {
         test: /\.(jpe?g|png|gif|svg)$/i,
-        type: "asset",
+        type: 'asset',
       },
       {
         test: /\.(ttf|woff|woff2|eot)$/,
         type: 'asset/resource',
       },
       {
-        test: /\.m?js$/,
+        test: /\.js$/,
+        exclude: /node_modules/,
+        use: jsLoaders()
+      },
+      {
+        test: /\.ts$/,
         exclude: /node_modules/,
         use: {
           loader: 'babel-loader',
-          options: {
-            presets: ['@babel/preset-env'],
-            plugins: [
-              '@babel/plugin-proposal-class-properties'
-            ]
-          }
+          options: babelOptions('@babel/preset-typescript')
+        }
+      },
+      {
+        test: /\.jsx$/,
+        exclude: /node_modules/,
+        use: {
+          loader: 'babel-loader',
+          options: babelOptions('@babel/preset-react')
         }
       }
     ]
   }
-} 
+}
